@@ -27,7 +27,6 @@ namespace Bot
         public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo)
         {
             // Output code here
-
             // Turn car towards ball
             Vector3 carLocation = packet.Players[agent.Index].Physics.Location;
             Vector3 ballLocation = packet.Ball.Physics.Location;
@@ -45,7 +44,7 @@ namespace Bot
             }
 
             // If the AI hit the ball then swap state.
-            if (Vector3.Distance(ballLocation, carLocation) <= 100)
+            if (Vector3.Distance(packet.Ball.Physics.Location, new Vector3(0, 0, packet.Ball.Physics.Location.Z)) > 10)
                 return null;
 
             return new Controller { Throttle = 1, Steer = steer, Boost = true };
