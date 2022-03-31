@@ -11,12 +11,13 @@ namespace Bot
         // Variables        
         public bool hasPickedUp = false;
         public float steer;
+        public float throttle;
         private int closestBoostPad = 0;
 
 
         public override bool IsViable(Bot agent, Packet packet, FieldInfo fieldInfo)
         {
-            return packet.Players[agent.Index].Boost < 80;
+            return packet.Players[agent.Index].Boost < 30;
         }
 
         public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo)
@@ -56,8 +57,18 @@ namespace Bot
                 steer = -1;
             }
 
+            // If the AI is close to the boost lower throttle to make tighter turns else full throttle
+            if (Vector3.Distance(carLocation, boostPadLocation) < 300)
+            {
+                throttle = 0.2f;
+            }
+            else
+            {
+                throttle = 1;
+            }
+
             // If the AI has reached the boostpad then trigger state end condition.
-            if (Vector3.Distance(carLocation, boostPadLocation) == 0)
+            if (Vector3.Distance(carLocation, boostPadLocation) <= 30)
             {
                 hasPickedUp = true;
             }
@@ -68,7 +79,7 @@ namespace Bot
                 return null;
             // else follow controls to get to nearest boost
             else
-                return new Controller { Throttle = 1, Steer = steer };
+                return new Controller { Throttle = throttle, Steer = steer };
         }
     }
 }

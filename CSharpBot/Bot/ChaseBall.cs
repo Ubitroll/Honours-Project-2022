@@ -35,16 +35,37 @@ namespace Bot
 
             Vector3 ballRelative = Orientation.RelativeLocation(carLocation, ballLocation, carRotation);
 
+
+            // If ball is to the right steer left
             if (ballRelative.Y > 0)
             {
                 steer = 1;
             }
-            else
+            // If ball is to the left steer right
+            else if (ballRelative.Y < 0)
             {
                 steer = -1;
             }
+            else if (ballRelative.Y == 0)
+            {
+                boost = true;
+            }
+            else boost = false;
 
-            return new Controller {Throttle = 1 ,Steer = steer, Boost = true };
+            // States in order of importance
+            BaseState[] states =
+            {
+                new kickOff(),
+                new SaveNet(),
+                new TakeShot(),
+                new GetBoost(),
+            };
+
+            foreach (BaseState state in states)
+                if (state.IsViable(agent, packet, fieldInfo))
+                    return null;
+
+            return new Controller {Throttle = 1 ,Steer = steer, Boost = boost };
         }
     }
 }

@@ -130,6 +130,8 @@ namespace Bot
             // If the AI hit the ball then swap state.
             if (Vector3.Distance(ballLocation, carLocation) <= 100)
                 return null;
+            else if (Vector3.Distance(ballLocation, carLocation) > 400)
+                return null;
             // else follow controls to get to nearest boost
             else
                 return new Controller { Steer = steer, Throttle = 1, Boost = true, Jump = jump };

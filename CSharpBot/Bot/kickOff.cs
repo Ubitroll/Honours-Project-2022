@@ -21,7 +21,7 @@ namespace Bot
         // Just hollow since state can only be called when no other state are viable.
         public override bool IsViable(Bot agent, Packet packet, FieldInfo fieldInfo)
         {
-            return Vector3.Distance(packet.Ball.Physics.Location, new Vector3(0, 0, packet.Ball.Physics.Location.Z)) < 10;
+            return Vector3.Distance(packet.Ball.Physics.Location, new Vector3(0, 0, packet.Ball.Physics.Location.Z)) < 50;
         }
 
         public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo)
@@ -43,8 +43,8 @@ namespace Bot
                 steer = -1;
             }
 
-            // If the AI hit the ball then swap state.
-            if (Vector3.Distance(packet.Ball.Physics.Location, new Vector3(0, 0, packet.Ball.Physics.Location.Z)) > 10)
+            // If the ball has moved from the start position then swap state.
+            if (Vector3.Distance(packet.Ball.Physics.Location, new Vector3(0, 0, packet.Ball.Physics.Location.Z)) > 50)
                 return null;
 
             return new Controller { Throttle = 1, Steer = steer, Boost = true };

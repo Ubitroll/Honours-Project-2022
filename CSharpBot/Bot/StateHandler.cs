@@ -70,7 +70,8 @@ namespace Bot
             // return the controller if the sate is still running
             if (stateOutput.HasValue)
             {
-                // Render the step and behaviour information
+                // Render the state information to the screen. (Useful for debugging to make sure bot is in right state)
+                // Allows for multiple agents to be displayed at once if multiple AI are running simultaneously.
                 float renderTextPosY = 100 + 30 * agent.Index;
                 string renderText = $"{GetStateName(currentState!)}";
                 Vector2 upperLeft = new Vector2(10, renderTextPosY);
@@ -87,6 +88,7 @@ namespace Bot
             return GetOutput(packet);
         }
 
+        // Method to get state name
         private string GetStateName(BaseState state)
         {
             return state.ToString().Split('.').Last();
