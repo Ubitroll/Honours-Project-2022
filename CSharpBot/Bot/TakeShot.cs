@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Bot.Utilities.Processed.FieldInfo;
+using Bot.Utilities.Processed.BallPrediction;
 using Bot.Utilities.Processed.Packet;
 using RLBotDotNet;
 
@@ -18,12 +19,18 @@ namespace Bot
         public bool boost;
         public bool handbrake;
 
-        public override bool IsViable(Bot agent, Packet packet, FieldInfo fieldInfo)
+        public override bool IsViable(Bot agent, Packet packet, FieldInfo fieldInfo, BallPrediction prediction)
         {
-            return Vector3.Distance(packet.Players[agent.Index].Physics.Location, packet.Ball.Physics.Location) < 400;
+            int enemyTeam;
+            if (agent.Index == 0)
+                enemyTeam = 1;
+            else
+                enemyTeam = 0;
+
+            return Vector3.Distance(packet.Players[agent.Index].Physics.Location, fieldInfo.Goals[enemyTeam].Location) < 5000;
         }
 
-        public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo)
+        public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo, BallPrediction prediction)
         {
             // Output code here
 
@@ -80,7 +87,7 @@ namespace Bot
             }
 
             // If the ball is close to the car
-            if (Vector3.Distance(carLocation, ballLocation) < 60)
+            if (Vector3.Distance(carLocation, ballLocation) < 200)
             {
                 // If the ball is in the air above the car try jump for it
                 if (ballLocation.Z > carLocation.Z)

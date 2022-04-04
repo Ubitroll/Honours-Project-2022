@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Bot.Utilities.Processed.FieldInfo;
+using Bot.Utilities.Processed.BallPrediction;
 using Bot.Utilities.Processed.Packet;
 using RLBotDotNet;
 
@@ -19,12 +20,12 @@ namespace Bot
         public bool handbrake;
 
         // Just hollow since state can only be called when no other state are viable.
-        public override bool IsViable(Bot agent, Packet packet, FieldInfo fieldInfo)
+        public override bool IsViable(Bot agent, Packet packet, FieldInfo fieldInfo, BallPrediction prediction)
         {
             return false;
         }
 
-        public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo)
+        public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo, BallPrediction prediction)
         {
             // Output code here
 
@@ -62,7 +63,7 @@ namespace Bot
             };
 
             foreach (BaseState state in states)
-                if (state.IsViable(agent, packet, fieldInfo))
+                if (state.IsViable(agent, packet, fieldInfo, prediction))
                     return null;
 
             return new Controller {Throttle = 1 ,Steer = steer, Boost = boost };

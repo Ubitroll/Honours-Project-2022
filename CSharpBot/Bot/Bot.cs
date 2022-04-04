@@ -12,6 +12,7 @@ namespace Bot
     {
         private StateHandler stateHandler;
         public FieldInfo myCustomFieldInfo;
+        public BallPrediction myCustomPrediction;
 
         public Bot(string name, int team, int index) : base(name, team, index)
         {
@@ -21,7 +22,8 @@ namespace Bot
         public override Controller GetOutput(rlbot.flat.GameTickPacket gameTickPacket)
         {
             myCustomFieldInfo = GetFieldInfo();
-            stateHandler ??= new StateHandler(this, myCustomFieldInfo); 
+            myCustomPrediction = GetBallPrediction();
+            stateHandler ??= new StateHandler(this, myCustomFieldInfo, myCustomPrediction); 
 
             Packet packet = new Packet(gameTickPacket);
             Controller output = stateHandler.GetOutput(packet);

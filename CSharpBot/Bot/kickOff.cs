@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Bot.Utilities.Processed.FieldInfo;
+using Bot.Utilities.Processed.BallPrediction;
 using Bot.Utilities.Processed.Packet;
 using RLBotDotNet;
 
@@ -19,12 +20,12 @@ namespace Bot
         public bool handbrake;
 
         // Just hollow since state can only be called when no other state are viable.
-        public override bool IsViable(Bot agent, Packet packet, FieldInfo fieldInfo)
+        public override bool IsViable(Bot agent, Packet packet, FieldInfo fieldInfo, BallPrediction prediction)
         {
             return Vector3.Distance(packet.Ball.Physics.Location, new Vector3(0, 0, packet.Ball.Physics.Location.Z)) < 50;
         }
 
-        public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo)
+        public override Controller? GetOutput(Bot agent, Packet packet, FieldInfo fieldInfo, BallPrediction prediction)
         {
             // Output code here
             // Turn car towards ball

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Numerics;
 using Bot.Utilities.Processed.FieldInfo;
+using Bot.Utilities.Processed.BallPrediction;
 using Bot.Utilities.Processed.Packet;
 using RLBotDotNet;
 
@@ -13,11 +14,13 @@ namespace Bot
         private BaseState currentState;
         private (int, int) prevFrameScore = (0, 0);
         private FieldInfo fieldInfo;
+        private BallPrediction prediction;
 
         // Constructor
-        public StateHandler(Bot agent, FieldInfo fieldInfo)
+        public StateHandler(Bot agent, FieldInfo fieldInfo, BallPrediction prediction)
         {
             this.agent = agent;
+            this.prediction = prediction;
             this.fieldInfo = fieldInfo;
         }
 
@@ -34,7 +37,7 @@ namespace Bot
             };
 
             foreach (BaseState state in states)
-                if (state.IsViable(agent, packet, fieldInfo))
+                if (state.IsViable(agent, packet, fieldInfo, prediction))
                     return state;
 
             // if no states are viable return state that is always viable
@@ -65,7 +68,7 @@ namespace Bot
                 currentState = SelectState(packet);
             }
 
-            Controller? stateOutput = currentState.GetOutput(agent, packet, fieldInfo);
+            Controller? stateOutput = currentState.GetOutput(agent, packet, fieldInfo, prediction);
 
             // return the controller if the sate is still running
             if (stateOutput.HasValue)
