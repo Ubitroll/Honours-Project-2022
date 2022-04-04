@@ -46,19 +46,10 @@ namespace Bot
             // If AI is between ball and own net.
             if (Vector3.Distance(agentLocation, agentGoalLocation) < Vector3.Distance(ballLocation, agentGoalLocation))
             {
-                // Find time till intercept
-                float timeTillIntercept = Vector3.Distance(ballLocation, agentLocation) / 1410;
-
-                // Truncate to whole number
-                int Rounded = (int)Math.Round(timeTillIntercept);
-
-                // Find point of interception
-                Vector3 ballIntercept = prediction.Slices[0].Physics.Location;
-
                 // Steer towards point of interception
                 // Find the relative between the target and the car current location then steer towards it.
                 Orientation carRotation = packet.Players[agent.Index].Physics.Rotation;
-                Vector3 relativeFinalTarget = Orientation.RelativeLocation(agentLocation, ballIntercept, carRotation);
+                Vector3 relativeFinalTarget = Orientation.RelativeLocation(agentLocation, ballLocation, carRotation);
 
                 // Steer towards final target
                 if (relativeFinalTarget.Y > 0)
@@ -70,10 +61,54 @@ namespace Bot
                     steer = -1;
                 }
 
-                // If ball is in the air jump
-                if (Vector3.Distance(ballLocation, agentLocation) < 300 && ballLocation.Z > agentLocation.Z)
+                // If reach the location then Dodge
+                if (Vector3.Distance(agentLocation, ballLocation) < 100)
                 {
-                    jump = true;
+                    if (startTime == 0)
+                    {
+                        startTime = packet.GameInfo.SecondsElapsed;
+                    }
+
+                    // Find relative between car and ball
+                    Vector3 relativeToBall = Orientation.RelativeLocation(agentLocation, ballLocation, carRotation);
+
+                    // Use relative to decide on pitch or yaw
+                    if (relativeToBall.X > 0.1)
+                    {
+                        yaw = 1;
+                    }
+                    else if (relativeToBall.X < -0.1)
+                    {
+                        yaw = -1;
+                    }
+
+                    if (relativeToBall.Y > 0.1)
+                    {
+                        pitch = -1;
+                    }
+                    else if (relativeToBall.Y < 0.1)
+                    {
+                        pitch = 1;
+                    }
+
+                    float timeSinceStart = packet.GameInfo.SecondsElapsed - startTime;
+
+                    // First jump
+                    if (timeSinceStart < jumpDuration)
+                        return new Controller { Jump = true };
+
+                    // Wait after the first jump
+                    if (timeSinceStart < jumpDuration + waitAfterJump)
+                        return new Controller { Pitch = pitch, Yaw = yaw };
+
+                    // Second jump
+                    if (timeSinceStart < jumpDuration * 2 + waitAfterJump)
+                        return new Controller { Jump = true, Pitch = pitch, Yaw = yaw };
+
+                    // If the dodge is finished then reset so can dodge again
+                    if (packet.Players[agent.Index].HasWheelContact)
+                        startTime = 0;
+
                 }
             }
             // Else if ball is closer to goal than AI
@@ -116,11 +151,11 @@ namespace Bot
                     Vector3 relativeToBall = Orientation.RelativeLocation(agentLocation, ballLocation, carRotation);
 
                     // Use relative to decide on pitch or yaw
-                    if (relativeToBall.X > 0.1)
+                    if (relativeToBall.X > 0)
                     {
                         yaw = 1;
                     }
-                    else if (relativeToBall.X < -0.1)
+                    else if (relativeToBall.X < 0)
                     {
                         yaw = -1;
                     }
@@ -160,7 +195,7 @@ namespace Bot
                 return null;
             // else follow controls to get to nearest boost
             else
-                return new Controller { Steer = steer, Throttle = 1};
+                return new Controller { Steer = steer, Boost = true, Throttle = 1};
 
         }
     }

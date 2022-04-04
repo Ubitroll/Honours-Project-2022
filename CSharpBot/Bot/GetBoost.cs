@@ -100,7 +100,7 @@ namespace Bot
             else if (Vector3.Distance(packet.Ball.Physics.Location, fieldInfo.Goals[agent.Team].Location) < 4000)
                 return null;
             // If more than 5 seconds have passed since started state then exit state
-            else if (timeInState >= 5)
+            else if (timeInState >= 3)
                 return null;
             // else follow controls to get to nearest boost
             else

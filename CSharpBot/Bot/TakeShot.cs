@@ -36,6 +36,10 @@ namespace Bot
 
             Vector3 leftMostTarget;
             Vector3 rightMostTarget;
+            float jumpDuration = 0.1f;
+            float waitAfterJump = 0.1f;
+            float startTime = 0.1f;
+
 
             // Retrieve relavent data to make a save
             if (agent.Team == 0)
@@ -86,19 +90,64 @@ namespace Bot
                 steer = -1;
             }
 
-            // If the ball is close to the car
-            if (Vector3.Distance(carLocation, ballLocation) < 200)
+            // If the car is traveling in the correct direction then turn on the boost.
+            if (relativeFinalTarget.Y < 5 && relativeFinalTarget.Y > -5)
             {
-                // If the ball is in the air above the car try jump for it
-                if (ballLocation.Z > carLocation.Z)
-                {
-                    jump = true;
-                }
-                else
-                {
-                    jump = false;
-                }
+                boost = true;
             }
+            else boost = false;
+
+            // If reach the location then Dodge
+            if (Vector3.Distance(carLocation, finalTarget) < 100)
+            {
+                if (startTime == 0)
+                {
+                    startTime = packet.GameInfo.SecondsElapsed;
+                }
+
+                // Find relative between car and ball
+                Vector3 relativeToBall = Orientation.RelativeLocation(carLocation, ballLocation, carRotation);
+
+                // Use relative to decide on pitch or yaw
+                if (relativeToBall.X > 0.1)
+                {
+                    yaw = 1;
+                }
+                else if (relativeToBall.X < -0.1)
+                {
+                    yaw = -1;
+                }
+
+                if (relativeToBall.Y > 0.1)
+                {
+                    pitch = -1;
+                }
+                else if (relativeToBall.Y < 0.1)
+                {
+                    pitch = 1;
+                }
+
+                float timeSinceStart = packet.GameInfo.SecondsElapsed - startTime;
+
+                // First jump
+                if (timeSinceStart < jumpDuration)
+                    return new Controller { Jump = true };
+
+                // Wait after the first jump
+                if (timeSinceStart < jumpDuration + waitAfterJump)
+                    return new Controller { Pitch = pitch, Yaw = yaw };
+
+                // Second jump
+                if (timeSinceStart < jumpDuration * 2 + waitAfterJump)
+                    return new Controller { Jump = true, Pitch = pitch, Yaw = yaw };
+
+                // If the dodge is finished then reset so can dodge again
+                if (packet.Players[agent.Index].HasWheelContact)
+                    startTime = 0;
+
+            }
+
+            
 
 
             // Method to find angle between two vectors
@@ -134,14 +183,20 @@ namespace Bot
                 return start;
             }
 
+            int enemyTeam;
+            if (agent.Index == 0)
+                enemyTeam = 1;
+            else
+                enemyTeam = 0;
+
             // If the AI hit the ball then swap state.
             if (Vector3.Distance(ballLocation, carLocation) <= 100)
                 return null;
-            else if (Vector3.Distance(ballLocation, carLocation) > 400)
+            else if (Vector3.Distance(packet.Players[agent.Index].Physics.Location, fieldInfo.Goals[enemyTeam].Location) > 5000)
                 return null;
             // else follow controls to get to nearest boost
             else
-                return new Controller { Steer = steer, Throttle = 1, Boost = true, Jump = jump };
+                return new Controller { Steer = steer, Throttle = 1, Boost = boost, Jump = jump };
         }
     }
 }
