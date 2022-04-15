@@ -30,7 +30,7 @@ namespace Bot
             // States in order of importance
             BaseState[] states =
             {
-                new kickOff(),
+                new KickOff(),
                 new SaveNet(),
                 new TakeShot(),
                 new GetBoost(),

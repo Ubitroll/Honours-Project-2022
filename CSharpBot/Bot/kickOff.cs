@@ -7,7 +7,7 @@ using RLBotDotNet;
 namespace Bot
 {
     // State to chase after ball
-    public class kickOff : BaseState
+    public class KickOff : BaseState
     {
         // Variables
         public float throttle;
