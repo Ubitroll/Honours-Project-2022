@@ -37,12 +37,12 @@ namespace Bot
             Vector3 ballRelative = Orientation.RelativeLocation(carLocation, ballLocation, carRotation);
 
 
-            // If ball is to the right steer left
+            // If ball is to the right steer right
             if (ballRelative.Y > 0)
             {
                 steer = 1;
             }
-            // If ball is to the left steer right
+            // If ball is to the left steer left
             else if (ballRelative.Y < 0)
             {
                 steer = -1;
